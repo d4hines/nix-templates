@@ -1,4 +1,0 @@
-(executable
- (name hello_server)
- (public_name hello-server)
- (libraries dream))
