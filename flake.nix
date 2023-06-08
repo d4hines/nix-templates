@@ -24,6 +24,11 @@
         path = ./node-typescript-simple;
         description = "A NodeJS/TypeScript development flake";
       };
+
+      deno = {
+        path = ./deno;
+        description = "Deno development flake";
+      };
     };
   };
 }
