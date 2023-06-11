@@ -1,12 +1,10 @@
 {
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
     nix-filter.url = "github:numtide/nix-filter";
-
-    ocaml-overlay.url = "github:nix-ocaml/nix-overlays";
-    ocaml-overlay.inputs.nixpkgs.follows = "nixpkgs";
-    ocaml-overlay.inputs.flake-utils.follows = "flake-utils";
+    nixpkgs.url = "github:nix-ocaml/nix-overlays";
+    nixpkgs.inputs.flake-utils.follows = "flake-utils";
+    nixpkgs.inputs.nix-filter.follows = "nix-filter";
   };
 
   outputs = {
@@ -14,12 +12,13 @@
     nixpkgs,
     flake-utils,
     nix-filter,
-    ocaml-overlay,
   }: let
     out = system: let
       pkgs = import nixpkgs {
         inherit system;
-        overlays = [ocaml-overlay.overlays.${system}];
+        overlays = [
+          # add overlays here
+        ];
       };
       inherit (pkgs) lib;
       myPkgs =
