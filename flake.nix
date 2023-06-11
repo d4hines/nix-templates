@@ -7,7 +7,7 @@
         path = ./ocaml;
         description = "OCaml development flake";
       };
-      
+
       node-typescript = {
         path = ./node-typescript-simple;
         description = "A NodeJS/TypeScript development flake";
