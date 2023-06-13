@@ -9,7 +9,7 @@
       };
 
       node-typescript = {
-        path = ./node-typescript-simple;
+        path = ./node-typescript;
         description = "A NodeJS/TypeScript development flake";
       };
 
