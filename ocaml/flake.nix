@@ -19,12 +19,15 @@
           # add overlays here
         ];
       };
+      pkgsCross= pkgs.pkgsCross.muls64;
       inherit (pkgs) lib;
       native = pkgs.callPackage ./nix {
+        ocamlPackages = pkgs.ocaml-ng.ocamlPackages_5_1;
         nix-filter = nix-filter.lib;
         doCheck = true;
       };
-      static = pkgs.pkgsCross.musl64.callPackage ./nix {
+      static = pkgsCross.callPackage ./nix {
+        ocamlPackages = pkgsCross.ocaml-ng.ocamlPackages_5_1;
         nix-filter = nix-filter.lib;
         doCheck = true;
       };
@@ -32,7 +35,7 @@
       devShell = pkgs.mkShell {
         inputsFrom = [native];
         buildInputs = with pkgs;
-        with ocamlPackages; [
+        with ocaml-ng.ocamlPackages_5_1; [
           ocaml-lsp
           ocamlformat
           odoc
