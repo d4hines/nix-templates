@@ -1,18 +1,60 @@
 {
-  pkgs ? import ./sources.nix {},
+  pkgs,
+  stdenv,
+  lib,
+  ocamlPackages,
+  static ? false,
+  doCheck,
   nix-filter,
-  doCheck ? false,
-}: {
-  native = pkgs.callPackage ./generic.nix {
-    inherit doCheck nix-filter;
-  };
+}:
+with ocamlPackages;
+  buildDunePackage {
+    pname = "service";
+    version = "0.1.0";
 
-  musl64 = let
-    pkgsCross = pkgs.pkgsCross.musl64.pkgsStatic;
-  in
-    pkgsCross.callPackage ./generic.nix {
-      static = true;
-      inherit doCheck nix-filter;
-      ocamlPackages = pkgsCross.ocamlPackages;
+    src = nix-filter {
+      root = ../.;
+      include = [
+        "src"
+        "dune"
+        "dune-project"
+        "service.opam"
+      ];
     };
-}
+
+    # Static builds support, note that you need a static profile in your dune file
+    buildPhase = ''
+      echo "running ${
+        if static
+        then "static"
+        else "release"
+      } build"
+      dune build --display=short --profile=${
+        if static
+        then "static"
+        else "release"
+      }
+    '';
+    installPhase = ''
+      mkdir -p $out/bin
+      cp "$(readlink -f _build/install/default/bin/service)" "$out/bin/service"
+    '';
+
+    checkInputs = [
+    ];
+
+    propagatedBuildInputs = [
+      piaf
+      lwt
+      yojson
+      ppx_deriving
+
+      ppx_expect
+    ];
+
+    inherit doCheck;
+
+    meta = {
+      description = "Your service";
+    };
+  }

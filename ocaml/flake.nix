@@ -4,7 +4,6 @@
     nix-filter.url = "github:numtide/nix-filter";
     nixpkgs.url = "github:nix-ocaml/nix-overlays";
     nixpkgs.inputs.flake-utils.follows = "flake-utils";
-    nixpkgs.inputs.nix-filter.follows = "nix-filter";
   };
 
   outputs = {
@@ -21,18 +20,17 @@
         ];
       };
       inherit (pkgs) lib;
-      myPkgs =
-        pkgs.recurseIntoAttrs
-        (import ./nix {
-          inherit pkgs;
-          nix-filter = nix-filter.lib;
-          doCheck = true;
-        })
-        .native;
-      myDrvs = lib.filterAttrs (_: value: lib.isDerivation value) myPkgs;
+      native = pkgs.callPackage ./nix {
+        nix-filter = nix-filter.lib;
+        doCheck = true;
+      };
+      static = pkgs.pkgsCross.musl64.callPackage ./nix {
+        nix-filter = nix-filter.lib;
+        doCheck = true;
+      };
     in {
       devShell = pkgs.mkShell {
-        inputsFrom = lib.attrValues myDrvs;
+        inputsFrom = [native];
         buildInputs = with pkgs;
         with ocamlPackages; [
           ocaml-lsp
@@ -41,11 +39,14 @@
           ocaml
           dune_3
           nixfmt
-          utop 
+          utop
         ];
       };
 
-      defaultPackage = myPkgs.service;
+      packages = {
+        inherit native static;
+      };
+      defaultPackage = native;
 
       defaultApp = {
         type = "app";
